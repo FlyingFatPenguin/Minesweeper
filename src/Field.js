@@ -113,13 +113,35 @@ Field.prototype = {
     for (let i = 0; i < this.block[0].length; i++) {
       let td = tr.appendChild(document.createElement('td'));
       let btn = td.appendChild(document.createElement('button'))
-      btn.innerHTML='hhh';
+      // btn.innerHTML='';
     }
     for (let i = 0; i < this.block.length; i++) {
       table.appendChild(tr.cloneNode(true));
     }
     root.appendChild(table);
+
+    // 为 table 设定监听器
+    table.addEventListener('click', () => {
+      // 获取最终点击的节点
+      let tar = event.target;
+      this.clickBtn(tar);
+    }, false);
   },
+  clickBtn: function (tar) {
+    // 获取节点的x, y
+    let x = this.indexOfList(tar.parentElement);
+    let y = this.indexOfList(tar.parentElement.parentElement);
+    console.log(x + ' ' + y);
+    if (this.block[x][y] === this._mine) {
+      this.gameOver(tar);
+    } else {
+      tar.innerHTML = this.block[x][y];
+    }
+  },
+  gameOver: function () {
+    alert('Game Over');
+  },
+
   // /**
   //  * 查看结构是否正确
   //  */
@@ -139,4 +161,7 @@ Field.prototype = {
   //     }
   //   }
   // },
+  indexOfList: function (el) {
+    return Array.prototype.indexOf.call(el.parentElement.children, el);
+  }
 }

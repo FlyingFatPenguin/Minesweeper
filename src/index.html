@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,34 +8,37 @@
   <title>Minesweeper</title>
   <link rel="stylesheet" href="./Field.css">
 </head>
+
 <body>
   <h1>扫雷 原生 js 版</h1>
-  <table id="field">
-    <tbody>
-      <tr>
-      <td>1</td>
-      <td>2</td>
-      <td>3</td>
-      <td>4</td>
-      <td>5</td>
-    </tr>
-    </tbody>
-    
-  </table>
-
+  
   <div id='test'>
     123
   </div>
-    
+
   <script src="./Field.js"></script>
   <script>
     let field = new Field();
-    field.init(5,5,5);
+    field.init(5, 5, 5);
     let root = field.getDomRoot();
     let test = document.getElementById('test');
     test.appendChild(root)
-    
-    console.dir(root)
+
+    // console.dir(root)
+
+    (function (doc, win) {
+      var docEle = doc.documentElement,
+        evt = "onorientationchange" in window ? "orientationchange" : "resize",
+        fn = function () {
+          var width = docEle.clientWidth;
+          width && (docEle.style.fontSize = (width / 50) + "px");
+        };
+
+      win.addEventListener(evt, fn, false);
+      doc.addEventListener("DOMContentLoaded", fn, false);
+
+    }(document, window));
   </script>
 </body>
+
 </html>
