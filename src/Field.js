@@ -113,8 +113,7 @@ Field.prototype = {
     for (let i = 0; i < this.block[0].length; i++) {
       let td = tr.appendChild(document.createElement('td'));
       let btn = td.appendChild(document.createElement('button'))
-      let img = btn.appendChild(document.createElement('img'))
-      img.src = './icon/1.png';
+      btn.innerHTML='hhh';
     }
     for (let i = 0; i < this.block.length; i++) {
       table.appendChild(tr.cloneNode(true));
