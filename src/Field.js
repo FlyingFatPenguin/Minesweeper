@@ -136,6 +136,7 @@ Field.prototype = {
       this.gameOver(tar);
     } else {
       tar.innerHTML = this.block[x][y];
+      tar.style.backgroundColor = 'white';
     }
   },
   gameOver: function () {
