@@ -187,7 +187,7 @@ Field.prototype = {
     if (this.block[x][y] === 0) {
       console.log('发现 0 节点');
       let near = this.surroundNodes(x, y);
-      console.log(near);
+      // console.log(near);
       for (let i in near) {
         let [x, y] = near[i];
         this.clickBtn(this.getButton(x, y));
@@ -211,7 +211,7 @@ Field.prototype = {
    */
   _gameOverAnimation: function (x = 0, y = 0) {
     // 实现中心扩散的动画效果
-    console.log('当前中心' + x + ', ' + y);
+    // console.log('当前中心' + x + ', ' + y);
 
     // 计算到达时间
     let maxX = this.block.length;
@@ -262,6 +262,7 @@ Field.prototype = {
    * 游戏胜利
    */
   _victory: function () {
+    this.stateTransition(this._states.finish);
     this._victoryAnimation();
   },
   /**

@@ -27,3 +27,6 @@ let x = this.indexOfList(tar.parentElement.parentElement);
 
 ## Auto click 0
 自动点击 0 节点，同时为了更像原始游戏，设置了 0 节点显示空格。
+
+## fix victory but not finish
+victory 添加了状态转换函数
