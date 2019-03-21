@@ -46,7 +46,7 @@ Field.prototype = {
       }
     }
 
-    this.normalizedStructure();
+    this._normalizedStructure();
     this.stateTransition(this._states.init);
   },
   /**
@@ -104,20 +104,20 @@ Field.prototype = {
       return minesNum;
     }
   },
-  /**
-   * 更新场景
-   */
-  updateField: function () {
-    // 规范化结构
-    this.normalizedStructure();
+  // /**
+  //  * 更新场景
+  //  */
+  // updateField: function () {
+  //   // 规范化结构
+  //   this._normalizedStructure();
 
-    // 更新数据
+  //   // 更新数据
 
-  },
+  // },
   /**
    * 规范 dom 结构与 block 中的一致
    */
-  normalizedStructure: function () {
+  _normalizedStructure: function () {
     let root = this.getDomRoot();
     // 清空所有子节点
     root.innerHTML = '';
@@ -161,40 +161,92 @@ Field.prototype = {
     let y = this.indexOfList(tar.parentElement);
     let x = this.indexOfList(tar.parentElement.parentElement);
     console.log(x + ' ' + y);
-    this.show(x, y, tar); // 设置 tar 避免查找，优化性能
-    if(this.block[x][y] === this._mine){
-      this.gameOver();
+    this._show(x, y, tar); // 设置 tar 避免查找，优化性能
+    if (this.block[x][y] === this._mine) {
+      this.gameOver(x, y);
     }
   },
-  gameOver: function () {
+  /**
+   * 游戏结束
+   * 播放游戏结束动画，同时不再响应鼠标点击
+   * @param {Number} x 结束动画的中心
+   * @param {Number} y 
+   */
+  gameOver: function (x = 0, y = 0) {
     this.stateTransition(this._states.finish);
 
     // 游戏结束动画
-    setTimeout(() => {
-      this.showMap();
-      alert('Game Over!');
-    }, 300);
+    this.gameOverAnimation(x, y);
   },
   /**
-   * 显示整个地图
+   * 游戏结束动画
    */
-  showMap: function (x=0,y=0) {
+  gameOverAnimation: function (x = 0, y = 0) {
     // 实现中心扩散的动画效果
-    let list0 = [];
-    let list1 = [];
-    while(list1.length>0){
-      setTimeout(() => {
-        showNodes(list1.slice(0));
-      }, 200);
+    console.log('当前中心' + x + ', ' + y);
+
+    // 计算到达时间
+    let maxX = this.block.length;
+    let maxY = this.block[0].length;
+
+    let map = [];
+    for (let i = 0; i < maxX; i++) {
+      map[i] = [];
     }
+
+    for (let i = 0; i < maxX; i++) {
+      for (let j = 0; j < maxY; j++) {
+        let len = Math.abs(i - x) + Math.abs(j - y);
+        setTimeout(() => {
+          this._show(i, j);
+        }, len * 200);
+      }
+    }
+
   },
+  // /**
+  //  * 返回 x, y 节点的相邻节点，上下左右共计四个
+  //  * @param {Number} x 纵坐标
+  //  * @param {Number} y 横坐标
+  //  */
+  // nearNode: function (x, y) {
+  //   // 当前地图的尺寸
+  //   let maxX = this.block.length;
+  //   let maxY = this.block[0].length;
+
+  //   let result = [];
+  //   if (x > 0) {
+  //     result.push([x - 1, y]);
+  //   }
+  //   if (y > 0) {
+  //     result.push([x, y - 1]);
+  //   }
+  //   if (x < maxX - 1) {
+  //     result.push([x + 1, y]);
+  //   }
+  //   if (y < maxY - 1) {
+  //     result.push([x, y + 1]);
+  //   }
+  //   return result;
+  // },
+  // /**
+  //  * 显示多个节点
+  //  * @param {Array} arr 待显示的节点组合
+  //  */
+  // showNodes: function (arr) {
+  //   console.log('showNodes')
+  //   for (let i in arr) {
+  //     let [x, y] = arr[i];
+  //     this._show(x, y);
+  //   }
+  // },
   /**
    * 显示 x, y 处的节点
    * @param {Number} x 
    * @param {Number} y 
    */
-  show: function (x, y, tar = this.getButton(x, y)) {
-    if(tar.localName !== 'button'){
+  _show: function (x, y, tar = this.getButton(x, y)) {
+    if (tar.localName !== 'button') {
       return;
     }
     // 获取 x, y 对应的节点
@@ -240,6 +292,10 @@ Field.prototype = {
   //     }
   //   }
   // },
+  /**
+   * 返回节点在兄弟节点中的序号，排行老几
+   * @param {*} el 
+   */
   indexOfList: function (el) {
     return Array.prototype.indexOf.call(el.parentElement.children, el);
   }
