@@ -1,9 +1,20 @@
 // 创建一个扫雷模块
-function Field(x, y, minesNum) {}
+function Field(x, y, minesNum) {
+  this.state = this._states.created;
+}
 
 Field.prototype = {
   _mine: -1, // 地雷
   _empty: 0, // 空地
+  _states: { // 游戏状态
+    created: 0, // 初始状态
+    init: 1, // 创建完成 dom
+    start: 2, // 可以开始游戏
+    finish: 3, // 游戏结束
+  },
+  stateTransition: function (tarState) {
+    this.state = tarState;
+  },
   /**
    * 初始化地图
    * @param {Number} x 场地宽带 
@@ -36,6 +47,7 @@ Field.prototype = {
     }
 
     this.normalizedStructure();
+    this.stateTransition(this._states.init);
   },
   /**
    * 获取一个 dom 结构的 根节点
@@ -107,6 +119,8 @@ Field.prototype = {
    */
   normalizedStructure: function () {
     let root = this.getDomRoot();
+    // 清空所有子节点
+    root.innerHTML = '';
     let table = document.createElement('table');
     // let tbody = table.appendChild(document.createElement('tbody'));
     let tr = document.createElement('tr');
@@ -124,23 +138,83 @@ Field.prototype = {
     table.addEventListener('click', (event) => {
       // 获取最终点击的节点
       let tar = event.target;
+
+      // 去除点击目标非 button 的情况
+      if (!tar.localName === 'button') {
+        return;
+      }
+
       this.clickBtn(tar);
     }, false);
   },
+  /**
+   * 按钮被点击后的事件响应，变色及其他事件
+   * @param {Button} tar 按钮
+   */
   clickBtn: function (tar) {
+    // 如果游戏终止了，就不再响应该事件
+    if (this.state === this._states.finish) {
+      return;
+    }
+
     // 获取节点的x, y
     let x = this.indexOfList(tar.parentElement);
     let y = this.indexOfList(tar.parentElement.parentElement);
     console.log(x + ' ' + y);
-    if (this.block[x][y] === this._mine) {
-      this.gameOver(tar);
-    } else {
-      tar.innerHTML = this.block[x][y];
-      tar.style.backgroundColor = 'white';
+    this.show(x, y, tar); // 设置 tar 避免查找，优化性能
+    if(this.block[x][y] === this._mine){
+      this.gameOver();
     }
   },
   gameOver: function () {
-    alert('Game Over');
+    this.stateTransition(this._states.finish);
+
+    // 游戏结束动画
+    setTimeout(() => {
+      this.showMap();
+      alert('Game Over!');
+    }, 300);
+  },
+  /**
+   * 显示整个地图
+   */
+  showMap: function (x=0,y=0) {
+    // 实现中心扩散的动画效果
+    let list0 = [];
+    let list1 = [];
+    while(list1.length>0){
+      setTimeout(() => {
+        showNodes(list1.slice(0));
+      }, 200);
+    }
+  },
+  /**
+   * 显示 x, y 处的节点
+   * @param {Number} x 
+   * @param {Number} y 
+   */
+  show: function (x, y, tar = this.getButton(x, y)) {
+    // 获取 x, y 对应的节点
+    switch (this.block[x][y]) {
+      case this._mine:
+        tar.style.backgroundColor = 'red';
+        break;
+      default:
+        tar.style.backgroundColor = 'white';
+        tar.innerHTML = this.block[x][y];
+    }
+  },
+  /**
+   * 获取 x, y 处的对象
+   * @param {Number} x 行
+   * @param {Number} y 列
+   */
+  getButton: function (x, y) {
+    let root = this.getDomRoot();
+    let table = root.getElementsByTagName("table")[0];
+    let tr = table.getElementsByTagName('tr')[y];
+    let target = tr.getElementsByTagName('td')[x];
+    return target;
   },
 
   // /**
