@@ -19,3 +19,11 @@ let x = this.indexOfList(tar.parentElement.parentElement);
 `0.1.1` 中说有控件消失问题，这里解决了
 原因是修改当前按钮的数据的时候，可能点击的对象不是按钮，
 而是表格，当修改 innerHTML 后，表格就会消失。
+
+## add gameOverAnimation
+结束动画使用了回调函数，如果此时更新会导致问题。
+
+## add victory animation
+
+## Auto click 0
+自动点击 0 节点，同时为了更像原始游戏，设置了 0 节点显示空格。

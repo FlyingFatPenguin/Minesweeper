@@ -166,6 +166,12 @@ Field.prototype = {
     let y = this.indexOfList(tar.parentElement);
     let x = this.indexOfList(tar.parentElement.parentElement);
     console.log(x + ' ' + y);
+
+    // 如果点击目标已经被点击过了，就不再响应
+    if (this._ifBtnDisplayed(x, y)) {
+      return;
+    }
+
     this._show(x, y, tar); // 设置 tar 避免查找，优化性能
 
     // 判断游戏状态
@@ -174,6 +180,17 @@ Field.prototype = {
     } else {
       if (this._ifWin()) {
         this._victory();
+      }
+    }
+
+    // 如果出现了 0 ，自动点击周围的节点
+    if (this.block[x][y] === 0) {
+      console.log('发现 0 节点');
+      let near = this.surroundNodes(x, y);
+      console.log(near);
+      for (let i in near) {
+        let [x, y] = near[i];
+        this.clickBtn(this.getButton(x, y));
       }
     }
   },
@@ -229,7 +246,7 @@ Field.prototype = {
         }
       }
     }
-    console.log('undisplayedNum:'+unDisplayNum);
+    console.log('undisplayedNum:' + unDisplayNum);
     return unDisplayNum == this.minesNum;
   },
   /**
@@ -239,7 +256,7 @@ Field.prototype = {
    */
   _ifBtnDisplayed: function (x, y) {
     let btn = this.getButton(x, y);
-    return btn.innerHTML !== ''; // 通过背景颜色判断
+    return btn.innerHTML !== ''; // 通过内容判断
   },
   /**
    * 游戏胜利
@@ -250,14 +267,33 @@ Field.prototype = {
   /**
    * 游戏胜利动画
    */
-  _victoryAnimation:function(){
-    for(let i=0;i<this.sizeX;i++){
-      for(let j=0;j<this.sizeY;j++){
-        if(!this._ifBtnDisplayed(i, j)){
+  _victoryAnimation: function () {
+    for (let i = 0; i < this.sizeX; i++) {
+      for (let j = 0; j < this.sizeY; j++) {
+        if (!this._ifBtnDisplayed(i, j)) {
           this.getButton(i, j).style.backgroundColor = 'green';
         }
       }
     }
+  },
+  /**
+   * 返回周围 8 个节点
+   * @param {Number} x 
+   * @param {Number} y 
+   */
+  surroundNodes: function (x, y) {
+    let result = [];
+    for (let i = x - 1; i < x + 2; i++) {
+      for (let j = y - 1; j < y + 2; j++) {
+        if (i === x && j === y) {
+          continue;
+        }
+        if (i >= 0 && j >= 0 && i < this.sizeX && j < this.sizeY) {
+          result.push([i, j]);
+        }
+      }
+    }
+    return result;
   },
   // /**
   //  * 返回 x, y 节点的相邻节点，上下左右共计四个
@@ -308,6 +344,10 @@ Field.prototype = {
     switch (this.block[x][y]) {
       case this._mine:
         tar.style.backgroundColor = 'red';
+        break;
+      case 0:
+        tar.style.backgroundColor = 'white';
+        tar.innerHTML = ' ';
         break;
       default:
         tar.style.backgroundColor = 'white';
