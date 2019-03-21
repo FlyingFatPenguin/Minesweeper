@@ -161,7 +161,7 @@ Field.prototype = {
     let y = this.indexOfList(tar.parentElement);
     let x = this.indexOfList(tar.parentElement.parentElement);
     console.log(x + ' ' + y);
-    this.show(x, y); // 设置 tar 避免查找，优化性能
+    this.show(x, y, tar); // 设置 tar 避免查找，优化性能
     if(this.block[x][y] === this._mine){
       this.gameOver();
     }
@@ -194,6 +194,9 @@ Field.prototype = {
    * @param {Number} y 
    */
   show: function (x, y, tar = this.getButton(x, y)) {
+    if(tar.localName !== 'button'){
+      return;
+    }
     // 获取 x, y 对应的节点
     switch (this.block[x][y]) {
       case this._mine:

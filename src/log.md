@@ -14,3 +14,8 @@
 let y = this.indexOfList(tar.parentElement);
 let x = this.indexOfList(tar.parentElement.parentElement);
 ```
+
+## fix control disappear error
+`0.1.1` 中说有控件消失问题，这里解决了
+原因是修改当前按钮的数据的时候，可能点击的对象不是按钮，
+而是表格，当修改 innerHTML 后，表格就会消失。
