@@ -22,6 +22,11 @@ Field.prototype = {
    * @param {Number} minesNum 雷的数量
    */
   init: function (x, y, minesNum) {
+    this.sizeX = x;
+    this.sizeY = y;
+    this.minesNum = minesNum < x * y ? minesNum : x * y;
+
+
     // 初始化雷的位置
     let minesPos = this._countMinesPos(x, y, minesNum);
 
@@ -139,11 +144,6 @@ Field.prototype = {
       // 获取最终点击的节点
       let tar = event.target;
 
-      // 去除点击目标非 button 的情况
-      if (!tar.localName === 'button') {
-        return;
-      }
-
       this.clickBtn(tar);
     }, false);
   },
@@ -157,13 +157,24 @@ Field.prototype = {
       return;
     }
 
+    // 去除点击目标非 button 的情况
+    if (!tar.localName === 'button') {
+      return;
+    }
+
     // 获取节点的x, y
     let y = this.indexOfList(tar.parentElement);
     let x = this.indexOfList(tar.parentElement.parentElement);
     console.log(x + ' ' + y);
     this._show(x, y, tar); // 设置 tar 避免查找，优化性能
+
+    // 判断游戏状态
     if (this.block[x][y] === this._mine) {
-      this.gameOver(x, y);
+      this._gameOver(x, y);
+    } else {
+      if (this._ifWin()) {
+        this._victory();
+      }
     }
   },
   /**
@@ -172,16 +183,16 @@ Field.prototype = {
    * @param {Number} x 结束动画的中心
    * @param {Number} y 
    */
-  gameOver: function (x = 0, y = 0) {
+  _gameOver: function (x = 0, y = 0) {
     this.stateTransition(this._states.finish);
 
     // 游戏结束动画
-    this.gameOverAnimation(x, y);
+    this._gameOverAnimation(x, y);
   },
   /**
    * 游戏结束动画
    */
-  gameOverAnimation: function (x = 0, y = 0) {
+  _gameOverAnimation: function (x = 0, y = 0) {
     // 实现中心扩散的动画效果
     console.log('当前中心' + x + ', ' + y);
 
@@ -203,6 +214,50 @@ Field.prototype = {
       }
     }
 
+  },
+  /**
+   * 返回游戏成功与否
+   */
+  _ifWin: function () {
+    let x = this.sizeX;
+    let y = this.sizeY;
+    let unDisplayNum = 0;
+    for (let i = 0; i < x; i++) {
+      for (let j = 0; j < y; j++) {
+        if (!this._ifBtnDisplayed(i, j)) {
+          unDisplayNum++;
+        }
+      }
+    }
+    console.log('undisplayedNum:'+unDisplayNum);
+    return unDisplayNum == this.minesNum;
+  },
+  /**
+   * 返回当前按钮处的值是否被显示了
+   * @param {Number} x 当前按钮的坐标
+   * @param {Number} y 当前按钮的坐标
+   */
+  _ifBtnDisplayed: function (x, y) {
+    let btn = this.getButton(x, y);
+    return btn.innerHTML !== ''; // 通过背景颜色判断
+  },
+  /**
+   * 游戏胜利
+   */
+  _victory: function () {
+    this._victoryAnimation();
+  },
+  /**
+   * 游戏胜利动画
+   */
+  _victoryAnimation:function(){
+    for(let i=0;i<this.sizeX;i++){
+      for(let j=0;j<this.sizeY;j++){
+        if(!this._ifBtnDisplayed(i, j)){
+          this.getButton(i, j).style.backgroundColor = 'green';
+        }
+      }
+    }
   },
   // /**
   //  * 返回 x, y 节点的相邻节点，上下左右共计四个
