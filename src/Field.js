@@ -158,10 +158,10 @@ Field.prototype = {
     }
 
     // 获取节点的x, y
-    let x = this.indexOfList(tar.parentElement);
-    let y = this.indexOfList(tar.parentElement.parentElement);
+    let y = this.indexOfList(tar.parentElement);
+    let x = this.indexOfList(tar.parentElement.parentElement);
     console.log(x + ' ' + y);
-    this.show(x, y, tar); // 设置 tar 避免查找，优化性能
+    this.show(x, y); // 设置 tar 避免查找，优化性能
     if(this.block[x][y] === this._mine){
       this.gameOver();
     }
@@ -212,8 +212,9 @@ Field.prototype = {
   getButton: function (x, y) {
     let root = this.getDomRoot();
     let table = root.getElementsByTagName("table")[0];
-    let tr = table.getElementsByTagName('tr')[y];
-    let target = tr.getElementsByTagName('td')[x];
+    let tr = table.getElementsByTagName('tr')[x];
+    let td = tr.getElementsByTagName('td')[y];
+    let target = td.getElementsByTagName('button')[0];
     return target;
   },
 
