@@ -121,7 +121,7 @@ Field.prototype = {
     root.appendChild(table);
 
     // 为 table 设定监听器
-    table.addEventListener('click', () => {
+    table.addEventListener('click', (event) => {
       // 获取最终点击的节点
       let tar = event.target;
       this.clickBtn(tar);
