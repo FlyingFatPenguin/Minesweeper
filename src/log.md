@@ -30,3 +30,16 @@ let x = this.indexOfList(tar.parentElement.parentElement);
 
 ## fix victory but not finish
 victory 添加了状态转换函数
+
+
+## Fix init() arguments check
+1. 当输入的数据小于 `0` 时，会转换为 `0`。
+2. 当输入为 `0` 时，生成空白场景。
+3. 同时，为了避免输入 `0` 时查找尺寸的
+    ```js
+    this.block[0].length
+    ```
+    报错，修改上述写法为：
+    ```js
+    this.sizeY
+    ```

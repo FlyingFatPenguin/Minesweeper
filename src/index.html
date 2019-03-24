@@ -11,27 +11,39 @@
 
 <body>
   <h1>扫雷 原生 js 版</h1>
-  <button onclick="field.init(5, 5, 5)">重新开始</button>
-  <div id='test'>
-    123
-  </div>
+  <button onclick="restart()">重新开始</button>
+  长：<input type="text" id="sizeX" value="5">
+  宽：<input type="text" id="sizeY" value="5">
+  雷：<input type="text" id="mineNum" value="5">
+
+  <div id="test"></div>
 
   <script src="./Field.js"></script>
   <script>
     let field = new Field();
-    field.init(5, 5, 1);
     let root = field.getDomRoot();
     let test = document.getElementById('test');
     test.appendChild(root)
 
-    // console.dir(root)
+    let inputX = document.getElementById('sizeX');
+    let inputY = document.getElementById('sizeY');
+    let inputMineNum = document.getElementById('mineNum');
+
+    function restart() {
+      let sizeX = parseInt(inputX.value);
+      let sizeY = parseInt(inputY.value);
+      let mineNum = parseInt(inputMineNum.value);
+      field.init(sizeX, sizeY, mineNum);
+    }
+
+    restart();
 
     (function (doc, win) {
       var docEle = doc.documentElement,
         evt = "onorientationchange" in window ? "orientationchange" : "resize",
         fn = function () {
           var width = docEle.clientWidth;
-          width && (docEle.style.fontSize = (width / 20) + "px");
+          width && (docEle.style.fontSize = (width / 40) + "px");
         };
 
       win.addEventListener(evt, fn, false);

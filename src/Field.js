@@ -15,8 +15,25 @@ Field.prototype = {
   },
   stateTransition: function (tarState) {
     this.state = tarState;
-    if(tarState === this._states.init){
-      this._clearMyTimeOut();
+
+    // 设置回调
+    let states = this._states;
+    switch (tarState) {
+      case states.init:
+        this._clearMyTimeOut();
+        this.runCallBack(this.whenInit);
+        break;
+      case states.finish:
+        this.runCallBack(this.whenFinish);
+        break;
+      default:
+        break;
+    }
+  },
+
+  runCallBack: function (func, ...arg) {
+    if (typeof func === 'function') {
+      func.apply(this, arg);
     }
   },
   /**
@@ -24,8 +41,19 @@ Field.prototype = {
    * @param {Number} x 场地宽带 
    * @param {Number} y 场地高度
    * @param {Number} minesNum 雷的数量
+   * TODO:
+   * 输入数值合法性检查
    */
   init: function (x, y, minesNum) {
+    x = parseInt(x);
+    y = parseInt(y);
+    minesNum = parseInt(minesNum);
+
+    // 取正
+    x = x > 0 ? x : 0;
+    y = y > 0 ? y : 0;
+    minesNum = minesNum > 0 ? minesNum : 0;
+
     this.sizeX = x;
     this.sizeY = y;
     this.minesNum = minesNum < x * y ? minesNum : x * y;
@@ -133,12 +161,12 @@ Field.prototype = {
     let table = document.createElement('table');
     // let tbody = table.appendChild(document.createElement('tbody'));
     let tr = document.createElement('tr');
-    for (let i = 0; i < this.block[0].length; i++) {
+    for (let i = 0; i < this.sizeY; i++) {
       let td = tr.appendChild(document.createElement('td'));
       let btn = td.appendChild(document.createElement('button'))
       // btn.innerHTML='';
     }
-    for (let i = 0; i < this.block.length; i++) {
+    for (let i = 0; i < this.sizeX; i++) {
       table.appendChild(tr.cloneNode(true));
     }
     root.appendChild(table);
@@ -169,7 +197,7 @@ Field.prototype = {
     // 获取节点的x, y
     let y = this.indexOfList(tar.parentElement);
     let x = this.indexOfList(tar.parentElement.parentElement);
-    console.log(x + ' ' + y);
+    // console.log(x + ' ' + y);
 
     // 如果点击目标已经被点击过了，就不再响应
     if (this._ifBtnDisplayed(x, y)) {
@@ -189,7 +217,7 @@ Field.prototype = {
 
     // 如果出现了 0 ，自动点击周围的节点
     if (this.block[x][y] === 0) {
-      console.log('发现 0 节点');
+      // console.log('发现 0 节点');
       let near = this.surroundNodes(x, y);
       // console.log(near);
       for (let i in near) {
@@ -212,8 +240,6 @@ Field.prototype = {
   },
   /**
    * 游戏结束动画
-   * FIXME:
-   * 在游戏重新开始时，clearTimeOut
    */
   _gameOverAnimation: function (x = 0, y = 0) {
     // 实现中心扩散的动画效果
@@ -242,15 +268,15 @@ Field.prototype = {
    * 该方法创建的setTimeOut都可以用 clearMyTimeOut全部清除
    * @param  {...any} arg setTimeOut的参数
    */
-  _myTimeOut:function(...arg){
+  _myTimeOut: function (...arg) {
     this._timeOutList.push(setTimeout.apply(window, arg));
     setTimeout(arg);
   },
   /**
    * 专门用来清除所有的 myTimeOut
    */
-  _clearMyTimeOut:function(){
-    for(let i in this._timeOutList){
+  _clearMyTimeOut: function () {
+    for (let i in this._timeOutList) {
       let n = this._timeOutList[i];
       clearTimeout(n);
     }
@@ -269,7 +295,7 @@ Field.prototype = {
         }
       }
     }
-    console.log('undisplayedNum:' + unDisplayNum);
+    // console.log('undisplayedNum:' + unDisplayNum);
     return unDisplayNum == this.minesNum;
   },
   /**
