@@ -37,4 +37,15 @@ let root = field.getDomRoot();
 4. 如果要重新开始游戏的话，可以再次调用 `init`
 
 ## 高级技巧
-后续会添加一些回调函数，敬请期待。
+### 回调函数
+共有四个回调函数：
+```js
+whenInit()
+whenSuccess()
+whenFailure()
+whenFinish()
+```
+1. 当游戏被初始化时执行`whenInit`，也就是 `init` 函数被调用的时候
+2. 当游戏胜利后执行 `whenSuccess`。
+3. 当游戏失败后执行 `whenSuccess`。
+4. 无论成功或失败，都会最后进入 `finish` 状态，并调用 `whenFinish`
