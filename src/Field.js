@@ -1,6 +1,7 @@
 // 创建一个扫雷模块
 function Field(x, y, minesNum) {
   this.state = this._states.created;
+  this._timeOutList = [];
 }
 
 Field.prototype = {
@@ -14,6 +15,9 @@ Field.prototype = {
   },
   stateTransition: function (tarState) {
     this.state = tarState;
+    if(tarState === this._states.init){
+      this._clearMyTimeOut();
+    }
   },
   /**
    * 初始化地图
@@ -208,6 +212,8 @@ Field.prototype = {
   },
   /**
    * 游戏结束动画
+   * FIXME:
+   * 在游戏重新开始时，clearTimeOut
    */
   _gameOverAnimation: function (x = 0, y = 0) {
     // 实现中心扩散的动画效果
@@ -225,12 +231,29 @@ Field.prototype = {
     for (let i = 0; i < maxX; i++) {
       for (let j = 0; j < maxY; j++) {
         let len = Math.abs(i - x) + Math.abs(j - y);
-        setTimeout(() => {
+        this._myTimeOut(() => {
           this._show(i, j);
         }, len * 200);
       }
     }
 
+  },
+  /**
+   * 该方法创建的setTimeOut都可以用 clearMyTimeOut全部清除
+   * @param  {...any} arg setTimeOut的参数
+   */
+  _myTimeOut:function(...arg){
+    this._timeOutList.push(setTimeout.apply(window, arg));
+    setTimeout(arg);
+  },
+  /**
+   * 专门用来清除所有的 myTimeOut
+   */
+  _clearMyTimeOut:function(){
+    for(let i in this._timeOutList){
+      let n = this._timeOutList[i];
+      clearTimeout(n);
+    }
   },
   /**
    * 返回游戏成功与否
@@ -359,6 +382,8 @@ Field.prototype = {
    * 获取 x, y 处的对象
    * @param {Number} x 行
    * @param {Number} y 列
+   * TODO:
+   * 使用数组直接保存对象，来避免查询
    */
   getButton: function (x, y) {
     let root = this.getDomRoot();
