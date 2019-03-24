@@ -11,6 +11,7 @@
 
 <body>
   <h1>扫雷 原生 js 版</h1>
+  <h2 id="state"></h2>
   <button onclick="restart()">重新开始</button>
   长：<input type="text" id="sizeX" value="5">
   宽：<input type="text" id="sizeY" value="5">
@@ -37,6 +38,24 @@
     }
 
     restart();
+
+    let stateText = document.getElementById('state');
+    field.whenInit = function(){
+      console.log('whenInit');
+      stateText.innerHTML = '初始化';
+    };
+    field.whenFailure = function(){
+      console.log('whenFailure');
+      stateText.innerHTML = '失败';
+    };
+    field.whenSuccess = function(){
+      console.log('whenSuccess');
+      stateText.innerHTML = '成功';
+    };
+    field.whenFinish = function(){
+      console.log('whenFinish');
+      stateText.innerHTML += 'GameOver';
+    };
 
     (function (doc, win) {
       var docEle = doc.documentElement,

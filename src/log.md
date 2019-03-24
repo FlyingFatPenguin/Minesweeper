@@ -43,3 +43,14 @@ victory 添加了状态转换函数
     ```js
     this.sizeY
     ```
+
+
+## Add CallBack
+1. 全局替换了 `block.length` 为 `sizeX`
+2. 添加了四个回调函数
+    ```js
+    whenInit()
+    whenSuccess()
+    whenFailure()
+    whenFinish()
+    ```

@@ -1,37 +1,55 @@
 // 创建一个扫雷模块
 function Field(x, y, minesNum) {
-  this.state = this._states.created;
+  this._state = this._allStates.created;
   this._timeOutList = [];
+  this.whenInit = function () {};
+  this.whenFinish = function () {};
+  this.whenSuccess = function () {};
+  this.whenFailure = function () {};
 }
 
 Field.prototype = {
   _mine: -1, // 地雷
   _empty: 0, // 空地
-  _states: { // 游戏状态
+  _allStates: { // 游戏状态
     created: 0, // 初始状态
     init: 1, // 创建完成 dom
     start: 2, // 可以开始游戏
     finish: 3, // 游戏结束
+    failure: 4, // 游戏失败
+    success: 5, // 游戏胜利
   },
-  stateTransition: function (tarState) {
-    this.state = tarState;
+  /**
+   * 状态转换函数
+   * @param {Number} tarState this._states 的枚举
+   */
+  _stateTransition: function (tarState) {
+    this._state = tarState;
 
     // 设置回调
-    let states = this._states;
+    let states = this._allStates;
     switch (tarState) {
-      case states.init:
+      case states.init: // 启动
         this._clearMyTimeOut();
-        this.runCallBack(this.whenInit);
+        this._runCallBack(this.whenInit);
         break;
-      case states.finish:
-        this.runCallBack(this.whenFinish);
+      case states.success: // 成功 --> 结束
+        this._runCallBack(this.whenSuccess);
+        this._stateTransition(states.finish);
+        break;
+      case states.failure: // 失败 --> 结束
+        this._runCallBack(this.whenFailure);
+        this._stateTransition(states.finish);
+        break;
+      case states.finish: // 结束
+        this._runCallBack(this.whenFinish);
         break;
       default:
         break;
     }
   },
 
-  runCallBack: function (func, ...arg) {
+  _runCallBack: function (func, ...arg) {
     if (typeof func === 'function') {
       func.apply(this, arg);
     }
@@ -84,7 +102,7 @@ Field.prototype = {
     }
 
     this._normalizedStructure();
-    this.stateTransition(this._states.init);
+    this._stateTransition(this._allStates.init);
   },
   /**
    * 获取一个 dom 结构的 根节点
@@ -185,7 +203,7 @@ Field.prototype = {
    */
   clickBtn: function (tar) {
     // 如果游戏终止了，就不再响应该事件
-    if (this.state === this._states.finish) {
+    if (this._state === this._allStates.finish) {
       return;
     }
 
@@ -233,7 +251,7 @@ Field.prototype = {
    * @param {Number} y 
    */
   _gameOver: function (x = 0, y = 0) {
-    this.stateTransition(this._states.finish);
+    this._stateTransition(this._allStates.failure);
 
     // 游戏结束动画
     this._gameOverAnimation(x, y);
@@ -246,8 +264,8 @@ Field.prototype = {
     // console.log('当前中心' + x + ', ' + y);
 
     // 计算到达时间
-    let maxX = this.block.length;
-    let maxY = this.block[0].length;
+    let maxX = this.sizeX;
+    let maxY = this.sizeY;
 
     let map = [];
     for (let i = 0; i < maxX; i++) {
@@ -311,7 +329,7 @@ Field.prototype = {
    * 游戏胜利
    */
   _victory: function () {
-    this.stateTransition(this._states.finish);
+    this._stateTransition(this._allStates.success);
     this._victoryAnimation();
   },
   /**
