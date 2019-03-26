@@ -239,6 +239,29 @@ Field.prototype = {
       // 如果是插了旗子，拔掉
       if (this._ifFlag(x, y)) {
         this._unshow(x, y);
+      } else {
+        // 此处不是旗子，而是已经点过了的地方
+        // 这里右键就相当于标准游戏中的双键
+        // 即，如果周围的标记雷的个数等于当前的数字
+        // 就点开周围所有位置
+        let near = this.surroundNodes(x, y);
+        let flagNum = 0;
+        for (let i in near) {
+          let [x, y] = near[i];
+          if (this._ifFlag(x, y)) {
+            flagNum++;
+          }
+        }
+        if (flagNum < this.block[x][y]) {
+          return;
+        }
+
+        for (let i in near) {
+          let [x, y] = near[i];
+          if (!this._ifFlag(x, y)) {
+            this.clickBtn(this.getButton(x, y));
+          }
+        }
       }
       return;
     }
