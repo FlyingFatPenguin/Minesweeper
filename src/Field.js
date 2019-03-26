@@ -19,6 +19,17 @@ Field.prototype = {
     failure: 4, // 游戏失败
     success: 5, // 游戏胜利
   },
+  _icon: {
+    empty: '',
+    flag: '🚩',
+  },
+  _btnColor: {
+    unshow: 'blue', // 未显示
+    secure: 'white', // 显示，但是不是雷
+    mine: 'red', // 显示，地雷
+    clear: 'green', // 安全排除的地雷
+    flag: 'white', // 旗子背景
+  },
   /**
    * 状态转换函数
    * @param {Number} tarState this._states 的枚举
@@ -196,6 +207,44 @@ Field.prototype = {
 
       this.clickBtn(tar);
     }, false);
+
+    table.addEventListener('contextmenu', (event) => {
+      // 阻止默认事件
+      event.preventDefault();
+
+      // 获取最终点击的节点
+      let tar = event.target;
+
+      this.contextmenuBtn(tar);
+    })
+  },
+  contextmenuBtn: function (tar) {
+    // 如果游戏终止了，就不再响应该事件
+    if (this._state === this._allStates.finish) {
+      return;
+    }
+
+    // 去除点击目标非 button 的情况
+    if (!tar.localName === 'button') {
+      return;
+    }
+
+    // 获取节点的x, y
+    let y = this.indexOfList(tar.parentElement);
+    let x = this.indexOfList(tar.parentElement.parentElement);
+
+
+    // 如果点击目标已经被点击过
+    if (this._ifBtnDisplayed(x, y)) {
+      // 如果是插了旗子，拔掉
+      if (this._ifFlag(x, y)) {
+        this._unshow(x, y);
+      }
+      return;
+    }
+
+    // 插旗子
+    this._showFlag(x, y);
   },
   /**
    * 按钮被点击后的事件响应，变色及其他事件
@@ -308,7 +357,7 @@ Field.prototype = {
     let unDisplayNum = 0;
     for (let i = 0; i < x; i++) {
       for (let j = 0; j < y; j++) {
-        if (!this._ifBtnDisplayed(i, j)) {
+        if (!this._ifBtnDisplayed(i, j) || this._ifFlag(i, j)) {
           unDisplayNum++;
         }
       }
@@ -323,7 +372,16 @@ Field.prototype = {
    */
   _ifBtnDisplayed: function (x, y) {
     let btn = this.getButton(x, y);
-    return btn.innerHTML !== ''; // 通过内容判断
+    return btn.innerHTML !== this._icon.empty; // 通过内容判断
+  },
+  /**
+   * 判断当前位置是否是旗子
+   * @param {Number} x 坐标
+   * @param {Number} y 
+   */
+  _ifFlag: function (x, y) {
+    let btn = this.getButton(x, y);
+    return btn.innerHTML === this._icon.flag; // 通过内容判断
   },
   /**
    * 游戏胜利
@@ -338,8 +396,9 @@ Field.prototype = {
   _victoryAnimation: function () {
     for (let i = 0; i < this.sizeX; i++) {
       for (let j = 0; j < this.sizeY; j++) {
-        if (!this._ifBtnDisplayed(i, j)) {
-          this.getButton(i, j).style.backgroundColor = 'green';
+        if (!this._ifBtnDisplayed(i, j) || this._ifFlag(i, j)) {
+          this.getButton(i, j).style.backgroundColor = this._btnColor.clear;
+          this.getButton(i, j).innerHTML = this._icon.empty;
         }
       }
     }
@@ -411,16 +470,38 @@ Field.prototype = {
     // 获取 x, y 对应的节点
     switch (this.block[x][y]) {
       case this._mine:
-        tar.style.backgroundColor = 'red';
+        tar.style.backgroundColor = this._btnColor.mine;
         break;
       case 0:
-        tar.style.backgroundColor = 'white';
+        tar.style.backgroundColor = this._btnColor.secure;
         tar.innerHTML = ' ';
         break;
       default:
-        tar.style.backgroundColor = 'white';
+        tar.style.backgroundColor = this._btnColor.secure;
         tar.innerHTML = this.block[x][y];
     }
+  },
+  /**
+   * 返回未显示的状态
+   */
+  _unshow: function (x, y, tar = this.getButton(x, y)) {
+    if (tar.localName !== 'button') {
+      return;
+    }
+
+    tar.innerHTML = this._icon.empty;
+    tar.style.backgroundColor = this._btnColor.unshow;
+  },
+  /**
+   * 显示旗子
+   */
+  _showFlag: function (x, y, tar = this.getButton(x, y)) {
+    if (tar.localName !== 'button') {
+      return;
+    }
+
+    tar.innerHTML = this._icon.flag;
+    tar.style.backgroundColor = this._btnColor.flag;
   },
   /**
    * 获取 x, y 处的对象
