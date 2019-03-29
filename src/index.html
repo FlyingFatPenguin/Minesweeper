@@ -13,11 +13,11 @@
   <h1>扫雷 原生 js 版</h1>
   <h2 id="state"></h2>
   <button onclick="restart()">重新开始</button>
-  长：<input type="text" id="sizeX" value="5">
-  宽：<input type="text" id="sizeY" value="5">
+  长：<input type="text" id="sizeX" value="1">
+  宽：<input type="text" id="sizeY" value="1">
   雷：<input type="text" id="mineNum" value="5">
-
-  <div id="test"></div>
+  <p id="num">5</p>
+  <div id="test" oncontextmenu="updateMineNum()"></div>
 
   <script src="./Field.js"></script>
   <script>
@@ -29,46 +29,87 @@
     let inputX = document.getElementById('sizeX');
     let inputY = document.getElementById('sizeY');
     let inputMineNum = document.getElementById('mineNum');
+    let lastNum = document.getElementById('num');
 
     function restart() {
       let sizeX = parseInt(inputX.value);
       let sizeY = parseInt(inputY.value);
       let mineNum = parseInt(inputMineNum.value);
       field.init(sizeX, sizeY, mineNum);
+      updateMineNum();
     }
 
     restart();
 
     let stateText = document.getElementById('state');
-    field.whenInit = function(){
+    field.whenInit = function () {
       console.log('whenInit');
       stateText.innerHTML = '初始化';
+      changeFontSize();
     };
-    field.whenFailure = function(){
+    field.whenFailure = function () {
       console.log('whenFailure');
       stateText.innerHTML = '失败';
     };
-    field.whenSuccess = function(){
+    field.whenSuccess = function () {
       console.log('whenSuccess');
       stateText.innerHTML = '成功';
     };
-    field.whenFinish = function(){
+    field.whenFinish = function () {
       console.log('whenFinish');
       stateText.innerHTML += 'GameOver';
     };
+
+    function updateMineNum() {
+      num.innerHTML = '剩余：' + (field.minesNum - field.getFlagNum());
+    }
 
     (function (doc, win) {
       var docEle = doc.documentElement,
         evt = "onorientationchange" in window ? "orientationchange" : "resize",
         fn = function () {
-          var width = docEle.clientWidth;
-          width && (docEle.style.fontSize = (width / 40) + "px");
+          // var width = docEle.clientWidth / 2 / field.sizeX;
+          // var height = docEle.clientHeight / 2 / field.sizeY;
+          // let x = width < height ? width : height;
+          // width && (docEle.style.fontSize = (x) + "px");
+          changeFontSize();
         };
 
       win.addEventListener(evt, fn, false);
       doc.addEventListener("DOMContentLoaded", fn, false);
 
     }(document, window));
+
+    /**
+     * 设置字号适配页面
+     */
+    function changeFontSize() {
+      let height = window.innerHeight - getElementTop(field.getDomRoot());
+      // console.log('test.scrollTop' + getElementTop(test))
+      let width = window.innerWidth;
+      width = width / 2 / field.sizeY;
+      height = height / 2 / field.sizeX;
+      let x = width < height ? width : height;
+      console.log(width + ' ' + height + ' ' + x);
+      width && (document.documentElement.style.fontSize = (x) + "px");
+    }
+    
+    /**
+     * 获取对象左上角相对页面最上方的距离 
+     */
+    function getElementTop(element) {
+      var actualTop = element.offsetTop;
+      var current = element.offsetParent;
+
+      while (current !== null) {
+        console.log(current);
+        console.log('act' + current.offsetTop);
+        actualTop += current.offsetTop;
+        current = current.offsetParent;
+      }
+
+      return actualTop;
+    }
   </script>
 </body>
 

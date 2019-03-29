@@ -315,6 +315,9 @@ Field.prototype = {
         this.clickBtn(this.getButton(x, y));
       }
     }
+
+    // 自动右击可以展开的对象
+    // this.contextmenuBtn(tar);
   },
   /**
    * 游戏结束
@@ -561,6 +564,20 @@ Field.prototype = {
   //     }
   //   }
   // },
+  /**
+   * 获取旗子的数量
+   */
+  getFlagNum: function () {
+    let s = 0;
+    for (let i = 0; i < this.sizeX; i++) {
+      for (let j = 0; j < this.sizeY; j++) {
+        if(this._ifFlag(i,j)){
+          s++;
+        }
+      }
+    }
+    return s;
+  },
   /**
    * 返回节点在兄弟节点中的序号，排行老几
    * @param {*} el 
