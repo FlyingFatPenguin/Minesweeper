@@ -20,8 +20,56 @@ Field.prototype = {
     success: 5, // 游戏胜利
   },
   _icon: {
-    empty: '',
-    flag: '🚩',
+    num0: ' ',
+    num1: '1',
+    num2: '2',
+    num3: '3',
+    num4: '4',
+    num5: '5',
+    num6: '6',
+    num7: '7',
+    num8: '8',
+    num9: '9',
+    empty: '', // 未点击的地方
+    flag: '🚩', // 右键标记
+    clear: '  ', // 已经排除的雷（为了不同，初始化为两个空格）
+  },
+  setIcon: function (iconName, icon) {
+    let currentIcon = this._icon[iconName];
+
+    if (typeof icon !== 'string') {
+      return false;
+    }
+
+    // 不允许和其他图标相同，和自己相同也不用继续设置
+    for (let i in this._icon) {
+      if (this._icon[i] === icon) {
+        return false;
+      }
+    }
+
+    if (currentIcon === undefined) {
+      return false;
+    }
+
+    this._forEach((x, y) => {
+      let btn = this.getButton(x, y);
+      if (btn.innerHTML === currentIcon) {
+        btn.innerHTML = icon;
+      }
+    });
+
+    this._icon[iconName] = icon;
+    return true;
+  },
+  _forEach: function (callback) {
+    let sizeX = this.sizeX;
+    let sizeY = this.sizeY;
+    for (let i = 0; i < sizeX; i++) {
+      for (let j = 0; j < sizeY; j++) {
+        callback(i, j);
+      }
+    }
   },
   _btnColor: {
     unshow: 'blue', // 未显示
@@ -42,6 +90,7 @@ Field.prototype = {
     switch (tarState) {
       case states.init: // 启动
         this._clearMyTimeOut();
+        this._getBtn = []; // 重置 btn 优化
         this._runCallBack(this.whenInit);
         break;
       case states.success: // 成功 --> 结束
@@ -193,7 +242,7 @@ Field.prototype = {
     for (let i = 0; i < this.sizeY; i++) {
       let td = tr.appendChild(document.createElement('td'));
       let btn = td.appendChild(document.createElement('button'))
-      // btn.innerHTML='';
+      btn.innerHTML = this._icon.empty;
     }
     for (let i = 0; i < this.sizeX; i++) {
       table.appendChild(tr.cloneNode(true));
@@ -424,7 +473,7 @@ Field.prototype = {
       for (let j = 0; j < this.sizeY; j++) {
         if (!this._ifBtnDisplayed(i, j) || this._ifFlag(i, j)) {
           this.getButton(i, j).style.backgroundColor = this._btnColor.clear;
-          this.getButton(i, j).innerHTML = this._icon.empty;
+          this.getButton(i, j).innerHTML = this._icon.clear;
         }
       }
     }
@@ -498,13 +547,13 @@ Field.prototype = {
       case this._mine:
         tar.style.backgroundColor = this._btnColor.mine;
         break;
-      case 0:
-        tar.style.backgroundColor = this._btnColor.secure;
-        tar.innerHTML = ' ';
-        break;
+        // case 0:
+        //   tar.style.backgroundColor = this._btnColor.secure;
+        //   tar.innerHTML = ' ';
+        //   break;
       default:
         tar.style.backgroundColor = this._btnColor.secure;
-        tar.innerHTML = this.block[x][y];
+        tar.innerHTML = this._icon['num' + this.block[x][y]];
     }
   },
   /**
@@ -533,15 +582,31 @@ Field.prototype = {
    * 获取 x, y 处的对象
    * @param {Number} x 行
    * @param {Number} y 列
-   * TODO:
-   * 使用数组直接保存对象，来避免查询
    */
   getButton: function (x, y) {
+    // 打表法优化
+    if(!this._getBtn){
+      this._getBtn = [];
+    }
+
+    let btn = this._getBtn;
+    if(!btn[x]){
+      btn[x] = [];
+    }
+
+    if(btn[x][y]){
+      return btn[x][y];
+    }
+
+
     let root = this.getDomRoot();
     let table = root.getElementsByTagName("table")[0];
     let tr = table.getElementsByTagName('tr')[x];
     let td = tr.getElementsByTagName('td')[y];
     let target = td.getElementsByTagName('button')[0];
+
+    btn[x][y] = target;
+
     return target;
   },
 
@@ -571,7 +636,7 @@ Field.prototype = {
     let s = 0;
     for (let i = 0; i < this.sizeX; i++) {
       for (let j = 0; j < this.sizeY; j++) {
-        if(this._ifFlag(i,j)){
+        if (this._ifFlag(i, j)) {
           s++;
         }
       }

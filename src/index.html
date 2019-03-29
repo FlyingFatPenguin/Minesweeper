@@ -13,10 +13,11 @@
   <h1>扫雷 原生 js 版</h1>
   <h2 id="state"></h2>
   <button onclick="restart()">重新开始</button>
-  长：<input type="text" id="sizeX" value="1">
-  宽：<input type="text" id="sizeY" value="1">
+  长：<input type="text" id="sizeX" value="5">
+  宽：<input type="text" id="sizeY" value="5">
   雷：<input type="text" id="mineNum" value="5">
-  <p id="num">5</p>
+  <p id="num"></p>
+  <button onclick="changeIcon()">变换图标</button>
   <div id="test" oncontextmenu="updateMineNum()"></div>
 
   <script src="./Field.js"></script>
@@ -31,6 +32,8 @@
     let inputMineNum = document.getElementById('mineNum');
     let lastNum = document.getElementById('num');
 
+    let gameOver = true;
+
     function restart() {
       let sizeX = parseInt(inputX.value);
       let sizeY = parseInt(inputY.value);
@@ -39,13 +42,17 @@
       updateMineNum();
     }
 
-    restart();
 
     let stateText = document.getElementById('state');
     field.whenInit = function () {
       console.log('whenInit');
       stateText.innerHTML = '初始化';
       changeFontSize();
+      gameOver = false;
+      field.setIcon('clear', randomlySelect([
+        '😛', '😜', '😝', '😂', '🤣', '😃', '😄',
+        '😆', '😉', '😊', '😋', '😎', '😍', '😘',
+      ]));
     };
     field.whenFailure = function () {
       console.log('whenFailure');
@@ -58,11 +65,30 @@
     field.whenFinish = function () {
       console.log('whenFinish');
       stateText.innerHTML += 'GameOver';
+      num.innerHTML = '';
+      gameOver = true;
     };
 
     function updateMineNum() {
+      if (gameOver) {
+        return;
+      }
       num.innerHTML = '剩余：' + (field.minesNum - field.getFlagNum());
     }
+
+    function changeIcon() {
+      field.setIcon('flag', randomlySelect([
+        '🐧', '🐦', '🐤', '🐣', '🐥', '🦆', '🦅', '🦉',
+      ]));
+    }
+
+
+    function randomlySelect(options) {
+      let index = parseInt(Math.random() * options.length);
+      return options[index];
+    }
+
+    restart();
 
     (function (doc, win) {
       var docEle = doc.documentElement,
@@ -93,7 +119,7 @@
       console.log(width + ' ' + height + ' ' + x);
       width && (document.documentElement.style.fontSize = (x) + "px");
     }
-    
+
     /**
      * 获取对象左上角相对页面最上方的距离 
      */
