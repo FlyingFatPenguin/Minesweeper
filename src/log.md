@@ -77,3 +77,19 @@ chrome 浏览器
 Javascript Profiler
 优化前getButton 40% 总时间占用
 优化后getButton 1% +- 0.5% 
+
+## fix README Image not found Exception
+### 问题描述
+在 readme 中引用了文件夹中的两张图片，VSCode 可以显示，但是在 gitee 中就不可以显示。
+
+### 产生原因
+图片名的大小写和文档中的不一致，图片名 `ClearIcon.png` 路径中 `./img/clearIcon.png`
+VSCode 不区分，而 gitee 区分。
+
+### 解决方案
+修改了 README 中的引用路径。
+（不修改图片名称大小写，是因为 git 检测不到变更，因为 git 默认不区分大小写。
+如果要区分，看这里：[解决 Git 默认不区分文件名大小写的问题](https://www.jianshu.com/p/df0b0e8bcf9b)）
+
+### 经验教训
+开发环境和运行环境可能不一致，如果可以统一就尽量统一，同时要记得检查运行环境中的表现。

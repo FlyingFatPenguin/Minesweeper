@@ -78,13 +78,13 @@ field.setIcon('flag','🐧');
   ```js
   field.setIcon('clear', '😜');
   ```
-  ![clear](./img/clearIcon.png)
+  ![clear](./img/ClearIcon.png)
 
 - 设置游戏默认背景图案为花`❀`
   ```js
   field.setIcon('empty', '❀');
   ```
-  ![empty](./img/flower.png)
+  ![empty](./img/Flower.png)
 
 #### 注意事项
 `setIcon()` 函数并不是总能成功，其返回是否设置成功
