@@ -44,6 +44,9 @@ Field.prototype = {
     // 不允许和其他图标相同，和自己相同也不用继续设置
     for (let i in this._icon) {
       if (this._icon[i] === icon) {
+        if(i === iconName){ // 如果已经设置成功了，就返回 true
+          return true;
+        }
         return false;
       }
     }
