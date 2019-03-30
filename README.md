@@ -72,7 +72,7 @@ field.setIcon('flag','🐧');
   ```js
   field.setIcon('flag', '🐧');
   ```
-  ![flag](./img/flagIcon.png)
+  ![flag](./img/FlagIcon.png)
 
 - 设置游戏结束显示为笑脸
   ```js
@@ -84,7 +84,7 @@ field.setIcon('flag','🐧');
   ```js
   field.setIcon('empty', '❀');
   ```
-  ![empty](./img/Flower.png)
+  ![empty](./img/flower.png)
 
 #### 注意事项
 `setIcon()` 函数并不是总能成功，其返回是否设置成功
