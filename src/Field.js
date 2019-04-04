@@ -44,7 +44,7 @@ Field.prototype = {
     // 不允许和其他图标相同，和自己相同也不用继续设置
     for (let i in this._icon) {
       if (this._icon[i] === icon) {
-        if(i === iconName){ // 如果已经设置成功了，就返回 true
+        if (i === iconName) { // 如果已经设置成功了，就返回 true
           return true;
         }
         return false;
@@ -57,8 +57,9 @@ Field.prototype = {
 
     this._forEach((x, y) => {
       let btn = this.getButton(x, y);
-      if (btn.innerHTML === currentIcon) {
-        btn.innerHTML = icon;
+      if (this.getBtnInnerHtml(x, y) === currentIcon) {
+        // btn.innerHTML = icon;
+        this.setBtnInnerHtml(x, y, icon);
       }
     });
 
@@ -94,6 +95,7 @@ Field.prototype = {
       case states.init: // 启动
         this._clearMyTimeOut();
         this._getBtn = []; // 重置 btn 优化
+        this._innerHTML = []; // ifBtnDisplay 优化
         this._runCallBack(this.whenInit);
         break;
       case states.success: // 成功 --> 结束
@@ -449,8 +451,8 @@ Field.prototype = {
    * @param {Number} y 当前按钮的坐标
    */
   _ifBtnDisplayed: function (x, y) {
-    let btn = this.getButton(x, y);
-    return btn.innerHTML !== this._icon.empty; // 通过内容判断
+    // let btn = this.getButton(x, y);
+    return this.getBtnInnerHtml(x, y) !== this._icon.empty; // 通过内容判断
   },
   /**
    * 判断当前位置是否是旗子
@@ -458,8 +460,8 @@ Field.prototype = {
    * @param {Number} y 
    */
   _ifFlag: function (x, y) {
-    let btn = this.getButton(x, y);
-    return btn.innerHTML === this._icon.flag; // 通过内容判断
+    // let btn = this.getButton(x, y);
+    return this.getBtnInnerHtml(x,y) === this._icon.flag; // 通过内容判断
   },
   /**
    * 游戏胜利
@@ -476,7 +478,8 @@ Field.prototype = {
       for (let j = 0; j < this.sizeY; j++) {
         if (!this._ifBtnDisplayed(i, j) || this._ifFlag(i, j)) {
           this.getButton(i, j).style.backgroundColor = this._btnColor.clear;
-          this.getButton(i, j).innerHTML = this._icon.clear;
+          // this.getButton(i, j).innerHTML = this._icon.clear;
+          this.setBtnInnerHtml(i,j,this._icon.clear);
         }
       }
     }
@@ -556,7 +559,8 @@ Field.prototype = {
         //   break;
       default:
         tar.style.backgroundColor = this._btnColor.secure;
-        tar.innerHTML = this._icon['num' + this.block[x][y]];
+        // tar.innerHTML = this._icon['num' + this.block[x][y]];
+        this.setBtnInnerHtml(x, y, this._icon['num' + this.block[x][y]]);
     }
   },
   /**
@@ -567,7 +571,8 @@ Field.prototype = {
       return;
     }
 
-    tar.innerHTML = this._icon.empty;
+    // tar.innerHTML = this._icon.empty;
+    this.setBtnInnerHtml(x, y, this._icon.empty);
     tar.style.backgroundColor = this._btnColor.unshow;
   },
   /**
@@ -578,7 +583,8 @@ Field.prototype = {
       return;
     }
 
-    tar.innerHTML = this._icon.flag;
+    // tar.innerHTML = this._icon.flag;
+    this.setBtnInnerHtml(x, y, this._icon.flag);
     tar.style.backgroundColor = this._btnColor.flag;
   },
   /**
@@ -588,16 +594,16 @@ Field.prototype = {
    */
   getButton: function (x, y) {
     // 打表法优化
-    if(!this._getBtn){
+    if (!this._getBtn) {
       this._getBtn = [];
     }
 
     let btn = this._getBtn;
-    if(!btn[x]){
+    if (!btn[x]) {
       btn[x] = [];
     }
 
-    if(btn[x][y]){
+    if (btn[x][y]) {
       return btn[x][y];
     }
 
@@ -652,5 +658,35 @@ Field.prototype = {
    */
   indexOfList: function (el) {
     return Array.prototype.indexOf.call(el.parentElement.children, el);
-  }
+  },
+  /**
+   * 获取 [x, y] 处的按钮中的文字
+   * 并不是直接读取对应的文字
+   * 而是读取上一次 setBtnInnerHtml中设置的值
+   * 这是一个减少 DOM 操作的优化技巧（在优化了 getButton 后，这里是最大的性能瓶颈）
+   * @param {Number} x 
+   * @param {Number} y 
+   */
+  getBtnInnerHtml: function (x, y) {
+    let html = this._innerHTML;
+    if (html[x] && html[x][y] !== undefined) {
+      return html[x][y];
+    }
+    return this._icon.empty;
+  },
+  /**
+   * 设置 [x, y] 处的按钮中的文字
+   * @param {Number} x 
+   * @param {Number} y 
+   */
+  setBtnInnerHtml: function (x, y, innerHTML) {
+    let btn = this.getButton(x, y);
+    btn.innerHTML = innerHTML;
+    let html = this._innerHTML;
+    if (html[x] === undefined) {
+      html[x] = [];
+    }
+
+    html[x][y] = innerHTML;
+  },
 }

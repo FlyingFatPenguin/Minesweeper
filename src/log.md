@@ -93,3 +93,18 @@ VSCode 不区分，而 gitee 区分。
 
 ### 经验教训
 开发环境和运行环境可能不一致，如果可以统一就尽量统一，同时要记得检查运行环境中的表现。
+
+
+## Optimized _ifBtnDisplayed() function
+### 简介
+最新的性能测试显示，
+性能消耗最高的是 `_ifBtnDisplayed` 函数。
+主要原因是该函数需要从 dom 中读取 innerHTML。
+
+### 解决方案
+将对于 innerHTML 读写的代码改成
+```js
+getBtnInnerHtml(x, y);
+setBtnInnerHtml(x, y, innerHTML);
+```
+在 set 后缓存结果，供 get 使用。
