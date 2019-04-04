@@ -108,3 +108,11 @@ getBtnInnerHtml(x, y);
 setBtnInnerHtml(x, y, innerHTML);
 ```
 在 set 后缓存结果，供 get 使用。
+
+
+## Optimized clickBtn(tar) -> (x,y)
+### 简介
+该函数是当前的性能瓶颈，由于其需要查找对应的 x,y 坐标。
+而从 button 查找 x,y 的时间消耗远远大于从 x,y 查找 button。
+所有尝试修改了参数。
+

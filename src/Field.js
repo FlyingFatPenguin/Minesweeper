@@ -259,7 +259,11 @@ Field.prototype = {
       // 获取最终点击的节点
       let tar = event.target;
 
-      this.clickBtn(tar);
+      let {
+        x,
+        y
+      } = this.getBtnIndex(tar);
+      this.clickBtn(x, y);
     }, false);
 
     table.addEventListener('contextmenu', (event) => {
@@ -268,11 +272,15 @@ Field.prototype = {
 
       // 获取最终点击的节点
       let tar = event.target;
-
-      this.contextmenuBtn(tar);
+      let {
+        x,
+        y
+      } = this.getBtnIndex(tar);
+      this.contextmenuBtn(x, y);
     })
   },
-  contextmenuBtn: function (tar) {
+  contextmenuBtn: function (x, y) {
+    const tar = this.getButton(x, y);
     // 如果游戏终止了，就不再响应该事件
     if (this._state === this._allStates.finish) {
       return;
@@ -284,8 +292,8 @@ Field.prototype = {
     }
 
     // 获取节点的x, y
-    let y = this.indexOfList(tar.parentElement);
-    let x = this.indexOfList(tar.parentElement.parentElement);
+    // let y = this.indexOfList(tar.parentElement);
+    // let x = this.indexOfList(tar.parentElement.parentElement);
 
 
     // 如果点击目标已经被点击过
@@ -313,7 +321,7 @@ Field.prototype = {
         for (let i in near) {
           let [x, y] = near[i];
           if (!this._ifFlag(x, y)) {
-            this.clickBtn(this.getButton(x, y));
+            this.clickBtn(x, y);
           }
         }
       }
@@ -327,28 +335,23 @@ Field.prototype = {
    * 按钮被点击后的事件响应，变色及其他事件
    * @param {Button} tar 按钮
    */
-  clickBtn: function (tar) {
+  clickBtn: function (x, y) {
     // 如果游戏终止了，就不再响应该事件
     if (this._state === this._allStates.finish) {
       return;
     }
 
     // 去除点击目标非 button 的情况
-    if (!tar.localName === 'button') {
-      return;
-    }
-
-    // 获取节点的x, y
-    let y = this.indexOfList(tar.parentElement);
-    let x = this.indexOfList(tar.parentElement.parentElement);
-    // console.log(x + ' ' + y);
+    // if (!tar.localName === 'button') {
+    //   return;
+    // }
 
     // 如果点击目标已经被点击过了，就不再响应
     if (this._ifBtnDisplayed(x, y)) {
       return;
     }
 
-    this._show(x, y, tar); // 设置 tar 避免查找，优化性能
+    this._show(x, y); // 设置 tar 避免查找，优化性能
 
     // 判断游戏状态
     if (this.block[x][y] === this._mine) {
@@ -366,12 +369,12 @@ Field.prototype = {
       // console.log(near);
       for (let i in near) {
         let [x, y] = near[i];
-        this.clickBtn(this.getButton(x, y));
+        this.clickBtn(x, y);
       }
     }
 
     // 自动右击可以展开的对象
-    // this.contextmenuBtn(tar);
+    // this.contextmenuBtn(x, y);
   },
   /**
    * 游戏结束
@@ -461,7 +464,7 @@ Field.prototype = {
    */
   _ifFlag: function (x, y) {
     // let btn = this.getButton(x, y);
-    return this.getBtnInnerHtml(x,y) === this._icon.flag; // 通过内容判断
+    return this.getBtnInnerHtml(x, y) === this._icon.flag; // 通过内容判断
   },
   /**
    * 游戏胜利
@@ -479,7 +482,7 @@ Field.prototype = {
         if (!this._ifBtnDisplayed(i, j) || this._ifFlag(i, j)) {
           this.getButton(i, j).style.backgroundColor = this._btnColor.clear;
           // this.getButton(i, j).innerHTML = this._icon.clear;
-          this.setBtnInnerHtml(i,j,this._icon.clear);
+          this.setBtnInnerHtml(i, j, this._icon.clear);
         }
       }
     }
@@ -689,4 +692,29 @@ Field.prototype = {
 
     html[x][y] = innerHTML;
   },
+
+  /**
+   * 获取 button 在表格中的横纵位置
+   * @param {Button} btn button 对象
+   */
+  getBtnIndex: function (btn) {
+    // let btns = this._getBtn;
+    // for (let i in btns) {
+    //   for (let j in btns[i]) {
+    //     if (btns[i][j] === btn) {
+    //       return {
+    //         x: i,
+    //         y: j
+    //       }
+    //     }
+    //   }
+    // }
+
+    let y = this.indexOfList(btn.parentElement);
+    let x = this.indexOfList(btn.parentElement.parentElement);
+    return {
+      x,
+      y,
+    };
+  }
 }
