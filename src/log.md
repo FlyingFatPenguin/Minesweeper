@@ -116,3 +116,7 @@ setBtnInnerHtml(x, y, innerHTML);
 而从 button 查找 x,y 的时间消耗远远大于从 x,y 查找 button。
 所有尝试修改了参数。
 
+## Optimized ifWin()
+### 简介
+ifWin() 函数通过遍历来记录当前的节点中的显示节点的个数。
+添加一个 showNum 来记录这个个数，可以达成优化。

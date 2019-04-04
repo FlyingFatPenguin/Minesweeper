@@ -1,5 +1,5 @@
 // 创建一个扫雷模块
-function Field(x, y, minesNum) {
+function Field() {
   this._state = this._allStates.created;
   this._timeOutList = [];
   this.whenInit = function () {};
@@ -96,6 +96,7 @@ Field.prototype = {
         this._clearMyTimeOut();
         this._getBtn = []; // 重置 btn 优化
         this._innerHTML = []; // ifBtnDisplay 优化
+        this._showNum = 0; // ifWin 优化，记录已经左键点开的区域的个数
         this._runCallBack(this.whenInit);
         break;
       case states.success: // 成功 --> 结束
@@ -437,16 +438,17 @@ Field.prototype = {
   _ifWin: function () {
     let x = this.sizeX;
     let y = this.sizeY;
-    let unDisplayNum = 0;
-    for (let i = 0; i < x; i++) {
-      for (let j = 0; j < y; j++) {
-        if (!this._ifBtnDisplayed(i, j) || this._ifFlag(i, j)) {
-          unDisplayNum++;
-        }
-      }
-    }
-    // console.log('undisplayedNum:' + unDisplayNum);
-    return unDisplayNum == this.minesNum;
+    // let unDisplayNum = 0;
+    // for (let i = 0; i < x; i++) {
+    //   for (let j = 0; j < y; j++) {
+    //     if (!this._ifBtnDisplayed(i, j) || this._ifFlag(i, j)) {
+    //       unDisplayNum++;
+    //     }
+    //   }
+    // }
+    // // console.log('undisplayedNum:' + unDisplayNum);
+    // return unDisplayNum == this.minesNum;
+    return this._showNum + this.minesNum === x * y;
   },
   /**
    * 返回当前按钮处的值是否被显示了
@@ -561,9 +563,13 @@ Field.prototype = {
         //   tar.innerHTML = ' ';
         //   break;
       default:
+        if (!this._ifBtnDisplayed(x, y)) { // x,y 处为 empty
+          this._showNum++;
+        }
         tar.style.backgroundColor = this._btnColor.secure;
         // tar.innerHTML = this._icon['num' + this.block[x][y]];
         this.setBtnInnerHtml(x, y, this._icon['num' + this.block[x][y]]);
+
     }
   },
   /**
@@ -572,6 +578,11 @@ Field.prototype = {
   _unshow: function (x, y, tar = this.getButton(x, y)) {
     if (tar.localName !== 'button') {
       return;
+    }
+
+    // 如果这个地方被显示了，且不是旗子
+    if (this._ifBtnDisplayed(x, y) && !this._ifFlag(x, y)) {
+      this._unshow--;
     }
 
     // tar.innerHTML = this._icon.empty;
