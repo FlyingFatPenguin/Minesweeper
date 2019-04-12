@@ -259,7 +259,10 @@ Field.prototype = {
     table.addEventListener('click', (event) => {
       // 获取最终点击的节点
       let tar = event.target;
-
+      if(tar.localName !== 'button'){
+        console.log('点击的对象是：'+tar);
+        return;
+      }
       let {
         x,
         y
@@ -273,6 +276,10 @@ Field.prototype = {
 
       // 获取最终点击的节点
       let tar = event.target;
+      if(tar.localName !== 'button'){
+        console.log('点击的对象是：'+tar);
+        return;
+      }
       let {
         x,
         y
